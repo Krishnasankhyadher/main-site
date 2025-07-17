@@ -1,7 +1,7 @@
 import React from 'react'
 import Hero from '../components/Herom'
 import Latestcollection from '../components/Latestcollection'
-import Bestseller from '../components/bestseller'
+import Bestseller from '../components/Bestseller'
 import Ourpolicy from '../components/Ourpolicy'
 import Newsletterbox from '../components/Newsletterbox'
 
