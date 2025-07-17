@@ -11,7 +11,7 @@ import Order from './pages/Order'
 import Navbar from './components/Navbar'
 import Product from './pages/Productm'
 import Footer from './components/Footer'
-import Searchbar from './components/searchbar'
+import Searchbar from './components/Searchbar'
  import { ToastContainer, toast } from 'react-toastify';
  import 'react-toastify/dist/ReactToastify.css'
 
