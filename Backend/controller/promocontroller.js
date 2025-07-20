@@ -30,7 +30,7 @@ import ordermodel from "../models/ordermodel.js";
     console.log("Processed promo data:", promoData); 
     const newPromo = new promomodel(promoData);
     await newPromo.save();
-    console.log("Saved document:", savedPromo); 
+    // console.log("Saved document:", savedPromo); 
     res.status(201).json({ 
       success: true, 
       message: "Promo code created successfully",
