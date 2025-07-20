@@ -126,11 +126,11 @@ const validatePromoCode = async (req, res) => {
 
     // Check validity dates
     const now = new Date();
-    if (promo.validFrom && new Date(promo.validFrom) >= now) {
+    if (promo.validFrom && new Date(promo.validFrom) > now) {
       return res.json({ success: false, message: "Promo code not yet valid" });
     }
 
-    if (promo.validUntil && new Date(promo.validUntil) <= now) {
+    if (promo.validUntil && new Date(promo.validUntil) < now) {
       return res.json({ success: false, message: "Promo code has expired" });
     }
 
