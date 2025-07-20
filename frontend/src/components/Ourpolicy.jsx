@@ -9,7 +9,7 @@ const Ourpolicy = () => {
             <div className='text-center text-3xl py-8'>
                 <Title text1={"OUR"} text2={'POLICY'}></Title>
                 <p className='w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600'>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Porro, accusamus pariatur vero veritatis illo sequi.
+Secure payments and trusted delivery—our policies are designed to give you a smooth and worry-free experience.
                 </p>
                 <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6'>
                     </div>
@@ -30,6 +30,13 @@ const Ourpolicy = () => {
         </Link>
         <p className='font-semibold'>Contaxt Us</p>
         <p className='text-gray-400'>We providew 24X7 support</p>
+      </div>
+       <div>
+        <Link to='/delivery'>
+        <img src="https://www.svgrepo.com/show/403173/delivery-truck.svg" className='w-12 m-auto mb-5' alt="" />
+        </Link>
+        <p className='font-semibold'>Your order will be delivered in 5-7 days</p>
+        <p className='text-gray-400'>Quick delivery to your doorstep with trusted partners.</p>
       </div>
     </div>
     </>

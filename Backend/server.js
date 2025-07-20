@@ -8,6 +8,9 @@ import productroutes from './routes/productroutes.js'
 import cartrouter from './routes/cartroutes.js'
 import orderrouter from './routes/orderroutes.js'
 import dotenv from 'dotenv'
+import mailrouter from './routes/mailrouter.js'
+import promorouter from './routes/promoroutes.js'
+
 
 
 
@@ -31,6 +34,8 @@ app.use('/api/user',userouter)
 app.use('/api/product',productroutes)
 app.use('/api/cart',cartrouter)
 app.use('/api/order',orderrouter)
+app.use('/api/mail',mailrouter)
+app.use('/api/promo', promorouter)
 //api endpoint
 app.get('/',(req,res)=>{
     res.send('api working')    

@@ -10,6 +10,11 @@ const productschema= new mongoose.Schema({
     sizes:{type:Array, required:true},
     bestseller:{type:Boolean},
     date:{type:Number, required:true},
+    countInStock: {
+    type: Number,
+    required: true,
+    default: 1,
+  },
 })
 const productmodel = mongoose.models.product || mongoose.model("product",productschema)
 export default productmodel

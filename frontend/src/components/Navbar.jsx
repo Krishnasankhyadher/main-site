@@ -34,12 +34,11 @@ const Navbar = () => {
             </ul>
             <div className='flex items-center gap-6'>
                 <img onClick={()=>setshowsearch(true)} src="https://www.svgrepo.com/show/532555/search.svg" alt="no image" className='w-5 cursor-pointer' />
-                <div className='group relative '>
+                <div className='relative group'>
                    <img onClick={()=> token ? null : navigate('/login')} src="https://www.svgrepo.com/show/512729/profile-round-1342.svg" className='w-5 cursor-pointer' alt="" />
                    {
                         token && <div className='group-hover:block hidden absolute dropdown-menu right-0 pt-4'>
                             <div className='flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded'>
-                                <p className='cursor-pointer hover:text-black'>My profile</p>
                                 <p onClick={()=>navigate('/order')} className='cursor-pointer hover:text-black'>Orders</p>
                                 <p onClick={logout} className='cursor-pointer hover:text-black'>Logout </p>
                             </div>

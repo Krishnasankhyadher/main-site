@@ -8,8 +8,7 @@ const Footer = () => {
                 <div>
                     <Link to='/'><img src="/Trendoor/images/Screenshot 2025-06-30 141043.png" alt="no image" className='w-36' /></Link>
                     <p className='w-full md:w-2/3 text-gray-600'>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam tempora minima in laborum beatae libero necessitatibus quo fugit id debitis.
-
+At Trendoor, we’re redefining fashion. From trendy styles to timeless pieces, we curate quality you can trust—all while keeping it affordable. Explore fashion that’s smart, sustainable, and just your vibe.
                     </p>
                 </div>
                 <div>
@@ -27,7 +26,7 @@ const Footer = () => {
                     <ul className='flex flex-col gap-1 text-gray-600'>
 
                     <li>+91 9412589173</li>
-                    <li>krishnasankhyadher@gmail.com</li>
+                    <li>Trendoorcontact@gmail.com</li>
                     </ul>
 
                 </div>

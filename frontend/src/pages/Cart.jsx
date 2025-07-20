@@ -4,7 +4,7 @@ import Title from '../components/Title'
 import Carttotal from '../components/Carttotal'
 
 const Cart = () => {
-  const { products, cartitems, currency , updatequantity, navigate} = useContext(Shopcontext)
+  const { products, cartitems, currency , updatequantity, navigate,getcartamount} = useContext(Shopcontext)
   const [cartdata, setcartdata] = useState([])
 
   useEffect(() => {
@@ -33,6 +33,11 @@ const Cart = () => {
       <div className='text-2xl mb-6'>
         <Title text1={'YOUR'} text2={'CART'} />
       </div>
+      {getcartamount() < 599 && (
+  <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-50 border border-yellow-400 text-yellow-900 px-6 py-3 rounded-2xl mb-6 shadow-md flex items-center justify-center gap-2 text-base font-medium">
+  🚚 <span>Get <strong>Free Delivery</strong> on orders above ₹599!</span>
+</div>
+)}
 
       <div className="flex flex-col gap-6">
         {cartdata.map((item, index) => {
