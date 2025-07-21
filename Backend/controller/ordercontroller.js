@@ -2,6 +2,7 @@
 import ordermodel from "../models/ordermodel.js"
 import usermodel from "../models/usermodel.js";
 import productmodel from "../models/productmodel.js";
+import promomodel from "../models/promomodel.js"
 const placeorder = async (req, res) => {
   try {
     const { userid, items, amount, address, promoCode } = req.body;
