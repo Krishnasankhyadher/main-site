@@ -15,20 +15,24 @@ import paymentrouter from "../routes/payment.js";
 
 const app = express();
 
-/* ---------- DB & Cloudinary (safe for serverless) ---------- */
+/* ---------- DB & Cloudinary (serverless-safe) ---------- */
 let isConnected = false;
 
 async function initServices() {
-  if (!isConnected) {
+  if (isConnected) return;
+
+  try {
     await connectdb();
     connectcloudinary();
     isConnected = true;
+    console.log("Services initialized");
+  } catch (err) {
+    console.error("Init failed:", err);
+    throw err;
   }
 }
 
-initServices();
-
-/* ---------- CORS (🔥 FIXED) ---------- */
+/* ---------- CORS (FIXED) ---------- */
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
@@ -38,28 +42,31 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // allow server-to-server, Postman, curl
+    origin: (origin, callback) => {
       if (!origin) return callback(null, true);
-
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-
-      return callback(new Error("CORS not allowed"), false);
+      return callback(null, false);
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "token"]
   })
 );
 
-// IMPORTANT: handle preflight
-app.options("*", cors());
-
 /* ---------- Middleware ---------- */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+/* ---------- Init services per request ---------- */
+app.use(async (req, res, next) => {
+  try {
+    await initServices();
+    next();
+  } catch {
+    res.status(500).json({ error: "Service initialization failed" });
+  }
+});
 
 /* ---------- Routes ---------- */
 app.use("/api/payment", paymentrouter);
@@ -70,10 +77,9 @@ app.use("/api/order", orderrouter);
 app.use("/api/mail", mailrouter);
 app.use("/api/promo", promorouter);
 
-/* ---------- Health Check ---------- */
+/* ---------- Health ---------- */
 app.get("/", (req, res) => {
   res.json({ success: true, message: "Trendoor backend running on Vercel" });
 });
 
-/* ---------- IMPORTANT ---------- */
 export default app;
