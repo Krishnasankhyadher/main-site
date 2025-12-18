@@ -28,8 +28,36 @@ async function initServices() {
 
 initServices();
 
+/* ---------- CORS (🔥 FIXED) ---------- */
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://trendoor.in",
+  "https://www.trendoor.in"
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow server-to-server, Postman, curl
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("CORS not allowed"), false);
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "token"]
+  })
+);
+
+// IMPORTANT: handle preflight
+app.options("*", cors());
+
 /* ---------- Middleware ---------- */
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -48,4 +76,4 @@ app.get("/", (req, res) => {
 });
 
 /* ---------- IMPORTANT ---------- */
-export default app; // 🚫 NO app.listen()
+export default app;
