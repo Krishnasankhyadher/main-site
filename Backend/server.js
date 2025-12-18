@@ -11,13 +11,15 @@ import dotenv from 'dotenv'
 import mailrouter from './routes/mailrouter.js'
 import promorouter from './routes/promoroutes.js'
 
+import router from './routes/payment.js'
+
 
 
 
 
 //app config
 const app=express()
-const port =process.env.PORT || 3000
+const port =process.env.PORT || 5000
 dotenv.config()
 connectdb()
 connectcloudinary()
@@ -30,6 +32,7 @@ app.use(cors())
 app.use(express.urlencoded({ extended: true }));
 
 //api endpoints
+app.use('/api/payment', router)
 app.use('/api/user',userouter)
 app.use('/api/product',productroutes)
 app.use('/api/cart',cartrouter)

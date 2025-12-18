@@ -15,6 +15,7 @@ const productschema= new mongoose.Schema({
     required: true,
     default: 1,
   },
+  
 })
 const productmodel = mongoose.models.product || mongoose.model("product",productschema)
 export default productmodel
