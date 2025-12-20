@@ -36,7 +36,7 @@ const corsOptions = {
         } else {
             // Don't crash, just reject politely
             console.log('Blocked by CORS:', origin);
-            callback(new Error('Not allowed by CORS'));
+            callback(null,false);
         }
     },
     credentials: true,
