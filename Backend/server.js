@@ -14,47 +14,40 @@ import router from './routes/payment.js'
 // App config
 const app = express()
 const port = process.env.PORT || 5000
+
 connectdb()
 connectcloudinary()
 
-// --- ROBUST CORS CONFIGURATION ---
+// --- CORS CONFIGURATION ---
 const allowedOrigins = [
-    'https://www.trendoor.in',
-    'https://trendoor.in',
-    'http://localhost:5173',
-    'http://localhost:3000'
+  'https://www.trendoor.in',
+  'https://trendoor.in',
+  'http://localhost:5174',
+  'http://localhost:3000'
 ];
 
 const corsOptions = {
-    origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps, curl, or server-to-server)
-        if (!origin) return callback(null, true);
-        
-        // Check if origin is in the allowed list
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            // Don't crash, just reject politely
-            console.log('Blocked by CORS:', origin);
-            callback(null,false);
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'token']
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('Blocked by CORS:', origin);
+      callback(null, false);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'token']
 };
 
+// ✅ Order matters
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 1. Handle Preflight Requests Explicitly
-app.options('*', cors(corsOptions));
-
-// 2. Apply CORS to all routes
-app.use(cors(corsOptions));
-// ---------------------------------
-
-// API Endpoints
+// API routes
 app.use('/api/payment', router)
 app.use('/api/user', userouter)
 app.use('/api/product', productroutes)
@@ -64,7 +57,9 @@ app.use('/api/mail', mailrouter)
 app.use('/api/promo', promorouter)
 
 app.get('/', (req, res) => {
-    res.send('API Working')
+  res.send('API Working')
 })
 
-app.listen(port, () => console.log('Server started on port :' + port))
+app.listen(port, () =>
+  console.log('Server started on port :' + port)
+)
