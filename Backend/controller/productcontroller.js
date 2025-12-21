@@ -3,8 +3,7 @@ import productmodel from "../models/productmodel.js";
 
 const addproduct = async (req, res) => {
   try {
-    console.log("📦 req.body:", req.body);
-console.log("🖼️ req.files:", req.files);
+ 
     const {
       name,
       description,
@@ -45,7 +44,7 @@ console.log("🖼️ req.files:", req.files);
       bestseller: bestseller === "true" ? true : false,
       date: Date.now(),
     };
-    console.log(productdata)
+  
 
 
 
