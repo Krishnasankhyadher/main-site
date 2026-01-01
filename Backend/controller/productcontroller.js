@@ -90,5 +90,67 @@ try {
 }
   
 };
+const editproduct = async (req, res) => {
+  try {
+ 
 
-export { addproduct, singleproduct, listproduct, removeproduct };
+    const {
+      productid,
+      name,
+      description,
+      price,
+      category,
+      subcategory,
+      size,
+      bestseller,
+    } = req.body;
+
+    const product = await productmodel.findById(productid);
+
+    if (!product) {
+      return res.json({ success: false, message: "Product not found" });
+    }
+
+    // Handle new images (optional)
+    const image1 = req.files?.image1?.[0];
+    const image2 = req.files?.image2?.[0];
+    const image3 = req.files?.image3?.[0];
+    const image4 = req.files?.image4?.[0];
+
+    const images = [image1, image2, image3, image4].filter(Boolean);
+
+    let imageurl = product.image; // default = old images
+
+    if (images.length > 0) {
+      imageurl = await Promise.all(
+        images.map(async (item) => {
+          const result = await cloudinary.uploader.upload(item.path, {
+            resource_type: "image",
+          });
+          return result.secure_url;
+        })
+      );
+    }
+
+    // Update fields
+    product.name = name || product.name;
+    product.description = description || product.description;
+    product.price = price ? Number(price) : product.price;
+    product.category = category || product.category;
+    product.subcategory = subcategory || product.subcategory;
+    product.sizes = size ? JSON.parse(size) : product.sizes;
+    product.bestseller =
+      bestseller !== undefined ? bestseller === "true" : product.bestseller;
+    product.image = imageurl;
+
+    await product.save();
+
+    res.json({ success: true, message: "Product updated successfully" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+
+export { addproduct, singleproduct, listproduct, removeproduct, editproduct };

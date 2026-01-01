@@ -10,8 +10,11 @@ import orderrouter from './routes/orderroutes.js'
 import dotenv from 'dotenv'
 import mailrouter from './routes/mailrouter.js'
 import promorouter from './routes/promoroutes.js'
-
+import collaboratorRoutes from "./routes/collaboratorRoutes.js";
+import adminCollaborator from "./routes/adminCollaborator.js";
 import router from './routes/payment.js'
+import cookieParser from "cookie-parser";
+import testimonialRoutes from './routes/testimonialRoutes.js';
 
 
 
@@ -34,6 +37,7 @@ app.use(cors({
   credentials: true
 }))
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 //api endpoints
 app.use('/api/payment', router)
@@ -43,6 +47,9 @@ app.use('/api/cart',cartrouter)
 app.use('/api/order',orderrouter)
 app.use('/api/mail',mailrouter)
 app.use('/api/promo', promorouter)
+app.use("/api/collaborator", collaboratorRoutes);
+app.use("/api/admin/collaborator", adminCollaborator);
+app.use("/api/testimonials", testimonialRoutes);
 //api endpoint
 app.get('/',(req,res)=>{
     res.send('api working')    

@@ -3,21 +3,12 @@ import ordermodel from "../models/ordermodel.js";
 
 // Create a new promo code (admin only)
  const createPromoCode = async (req, res) => {
-    console.log('----------- STARTING PROMO CREATION -----------');
-  console.log('Full request object:', {
-    method: req.method,
-    url: req.url,
-    headers: req.headers,
-    body: req.body
-  });
-
+  
    
   try {
-    
-    console.log("Raw request body:", req.body); 
+
     const { code, discountAmount, minOrderAmount, maxUses, validFrom, validUntil, isActive } = req.body;
-  console.log("Type of discountAmount:", typeof discountAmount);
-    console.log("Type of minOrderAmount:", typeof minOrderAmount);
+  
     const promoData = {
       code: code.toUpperCase(),
       discountAmount,
@@ -27,7 +18,7 @@ import ordermodel from "../models/ordermodel.js";
       validUntil: validUntil || null,
       isActive: isActive !== undefined ? isActive : true
     };
-    console.log("Processed promo data:", promoData); 
+    
     const newPromo = new promomodel(promoData);
     await newPromo.save();
     // console.log("Saved document:", savedPromo); 
