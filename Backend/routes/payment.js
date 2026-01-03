@@ -20,7 +20,7 @@ router.post("/initiate", async (req, res) => {
     const clientId = process.env.PHONEPE_CLIENT_ID
     const clientSecret = process.env.PHONEPE_CLIENT_SECRET
     const clientVersion = 1
-    const env = Env.SANDBOX
+    const env = Env.PRODUCTION
 
     const client = StandardCheckoutClient.getInstance(
       clientId,
@@ -56,7 +56,7 @@ router.get("/checkPaymentStatus", async (req, res) => {
     const clientId = process.env.PHONEPE_CLIENT_ID
     const clientSecret = process.env.PHONEPE_CLIENT_SECRET
     const clientVersion = 1
-    const env = Env.SANDBOX
+    const env = Env.PRODUCTION
   
     const client = StandardCheckoutClient.getInstance(
       clientId,
