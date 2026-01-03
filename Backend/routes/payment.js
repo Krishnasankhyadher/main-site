@@ -39,7 +39,8 @@ router.post("/initiate", async (req, res) => {
         success: true,
         message: "Payment order created successfully.",
         checkoutPageUrl,
-        merchantOrderId
+        merchantOrderId,
+        url: "https://www.trendoor.in/ordersuccess"
       })
     })
 
