@@ -69,16 +69,14 @@ router.get("/checkPaymentStatus", async (req, res) => {
   
     const response = await client.getOrderStatus(info[0])
   
-    if (response.state == "COMPLETED") {
-      return res.json({
-        success: true,
-        message: "Payment verified successfully."
-      })
+    if (response.state === "COMPLETED") {
+      return res.redirect(
+        `https://www.trendoor.in/ordersuccess`
+      );
     } else {
-      return res.json({
-        success: false,
-        message: "Payment failed."
-      })
+      return res.redirect(
+        `https://www.trendoor.in/orderfailed`
+      );
     }
   } catch (error) {
     return res.json({
