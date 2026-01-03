@@ -39,8 +39,7 @@ router.post("/initiate", async (req, res) => {
         success: true,
         message: "Payment order created successfully.",
         checkoutPageUrl,
-        merchantOrderId,
-        url: "https://www.trendoor.in/ordersuccess"
+        merchantOrderId
       })
     })
 
@@ -72,11 +71,11 @@ router.get("/checkPaymentStatus", async (req, res) => {
   
     if (response.state === "COMPLETED") {
       return res.redirect(
-        `https://www.trendoor.in/ordersuccess`
+        "https://www.trendoor.in/ordersuccess"
       );
     } else {
       return res.redirect(
-        `https://www.trendoor.in/orderfailed`
+        "https://www.trendoor.in/orderfailed"
       );
     }
   } catch (error) {
