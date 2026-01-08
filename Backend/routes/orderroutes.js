@@ -1,17 +1,26 @@
-import express from 'express'
-import { placeorder ,placeorderrazorpay,allorders,updatestatus,userorder} from '../controller/ordercontroller.js'
-import authuser from '../middleware/auth.js'
-import adminauth from "../middleware/adminauth.js"
+import express from "express";
+import {
+  placeorder,
+  placeorderrazorpay,
+  allorders,
+  updatestatus,
+  userorder,
+  deleteorder,
+} from "../controller/ordercontroller.js";
 
-const orderrouter= express.Router()
+import authuser from "../middleware/auth.js";
+import adminauth from "../middleware/adminauth.js";
 
-orderrouter.post('/list',adminauth,allorders)
-orderrouter.post('/status',adminauth,updatestatus)
+const orderrouter = express.Router();
 
-orderrouter.post('/place',authuser,placeorder)
-orderrouter.post('/razorpay',authuser,placeorderrazorpay)
+/* ADMIN */
+orderrouter.post("/list", adminauth, allorders);
+orderrouter.post("/status", adminauth, updatestatus);
+orderrouter.post("/delete", adminauth, deleteorder);
 
+/* USER */
+orderrouter.post("/place", authuser, placeorder);
+orderrouter.post("/razorpay", authuser, placeorderrazorpay);
+orderrouter.post("/userorder", authuser, userorder);
 
-orderrouter.post('/userorder',authuser,userorder)
-
-export default orderrouter
+export default orderrouter;

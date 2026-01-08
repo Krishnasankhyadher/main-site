@@ -1,23 +1,26 @@
 import jwt from "jsonwebtoken";
 
-const adminauth = async (req, res, next) => {
- try {
-    const {token}=req.headers 
+const adminauth = (req, res, next) => {
+  try {
+    const token =
+      req.headers.authorization?.split(" ")[1] ||
+      req.headers.token;
+
     if (!token) {
-        return res.json({success:false,message:"not authorized again"})
-        
+      return res.status(401).json({ success: false });
+
     }
-    const tokendecode =jwt.verify(token,process.env.JWT_SECRET)
-    if  (
-      tokendecode.email !== process.env.ADMIN_EMAIL ||
-      tokendecode.password !== process.env.ADMIN_PASSWORD
-    ) {
-           return res.json({success:false,message:"not authorized again"})
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({ success: false });
     }
-    next()
- } catch (error) {
-    console.log(error)
-    res.json({success:false, message:error.message})
- }
-}
+
+    next();
+  } catch (err) {
+    return res.status(401).json({ success: false });
+  }
+};
+
 export default adminauth

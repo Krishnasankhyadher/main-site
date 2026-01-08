@@ -3,8 +3,13 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const createtoken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET);
+const createtoken = (user) => {
+  return jwt.sign({
+      userId: user._id,
+      role: "user"
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" });
 };
 
 const loginuser = async (req, res) => {
@@ -16,7 +21,7 @@ const loginuser = async (req, res) => {
     }
     const ismatch = await bcrypt.compare(password, user.password);
     if (ismatch) {
-      const token = createtoken(user._id);
+      const token = createtoken(user);
       res.json({ success: true, token });
     } else {
       res.json({ success: false, message: "invalid credentials" });
@@ -59,7 +64,7 @@ const registeruser = async (req, res) => {
 
     const user = await newuser.save();
 
-    const token = createtoken(user._id);
+    const token = createtoken(user);
     res.json({ success: true, token });
   } catch (error) {
     console.log(error);
@@ -78,9 +83,16 @@ const adminlogin = async (req, res) => {
     ) {
       const secret = process.env.JWT_SECRET;
 
-const token = jwt.sign({ email, password }, secret);
+const token = jwt.sign(
+  {
+    role: "admin",
+    email: process.env.ADMIN_EMAIL
+  },
+  process.env.JWT_SECRET,
+  { expiresIn: "7d" }
+);
 
-      console.log("✅ [adminlogin] Token generated:", token);
+  
       return res.json({ success: true, token });
     } else {
       console.warn("❌ [adminlogin] Invalid credentials");
