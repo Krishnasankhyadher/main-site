@@ -6,7 +6,8 @@ import promomodel from "../models/promomodel.js";
 /* ================= PLACE ORDER ================= */
 const placeorder = async (req, res) => {
   try {
-    const { userid, items, amount, address, promoCode } = req.body;
+    const { items, amount, address, promoCode } = req.body;
+    const userid = req.userId;
 
     // 1️⃣ Validate stock
     for (const item of items) {
@@ -103,6 +104,7 @@ const placeorder = async (req, res) => {
       success: true,
       message: "Order placed successfully",
       orderId: neworder._id,
+      finalAmount: neworder.amount
     });
   } catch (error) {
     console.log(error);
@@ -126,7 +128,7 @@ const allorders = async (req, res) => {
 /* ================= USER ORDERS ================= */
 const userorder = async (req, res) => {
   try {
-    const userid = req.user.id;
+    const userid = req.userId;
     const order = await ordermodel.find({ userid }).sort({ date: -1 });
     res.json({ success: true, order });
   } catch (error) {
