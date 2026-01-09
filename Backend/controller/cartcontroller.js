@@ -6,7 +6,15 @@ import usermodel from '../models/usermodel.js'
 const addtocart = async (req, res) => {
   try {
     const { itemid, size } = req.body;
-    const userid = req.user.id;
+    const userid = req.userId; // 👈 use req.userId only
+
+    
+    if (!userid) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized"
+      });
+    }
 
     if (!itemid || !size) {
       return res.status(400).json({
@@ -17,7 +25,10 @@ const addtocart = async (req, res) => {
 
     const userdata = await usermodel.findById(userid);
     if (!userdata) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
     }
 
     let cartdata = userdata.cartdata || {};
@@ -26,22 +37,27 @@ const addtocart = async (req, res) => {
       cartdata[itemid] = {};
     }
 
-    cartdata[itemid][size] = 1; // only 1 allowed (frontend already restricts)
+    cartdata[itemid][size] = 1;
 
     await usermodel.findByIdAndUpdate(userid, { cartdata });
 
-    res.json({ success: true, message: "Added to cart" });
+    return res.json({
+      success: true,
+      message: "Added to cart"
+    });
 
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: error.message });
+    console.error("ADD TO CART ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
-
 const updatecart = async (req, res) => {
   try {
     const { itemid, size, quantity } = req.body;
-    const userid = req.user.id;
+    const userid = req.userId;
 
     const userdata = await usermodel.findById(userid);
     if (!userdata) {
@@ -75,7 +91,7 @@ const updatecart = async (req, res) => {
 
 const getusercart = async (req, res) => {
   try {
-    const userid = req.user.id;
+    const userid = req.userId;
 
     const userdata = await usermodel.findById(userid);
 

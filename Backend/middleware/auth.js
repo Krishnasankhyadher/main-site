@@ -2,33 +2,33 @@ import jwt from "jsonwebtoken";
 
 const authuser = (req, res, next) => {
   try {
-    const token =
-      req.headers.authorization?.split(" ")[1] ||
-      req.headers.token;
+    const authHeader = req.headers.authorization;
 
-    if (!token) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
         success: false,
-        message: "User not authorized"
+        message: "User not authorized",
       });
     }
 
+    const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // 🔥 THIS IS THE KEY CHECK
     if (decoded.role !== "user") {
       return res.status(403).json({
         success: false,
-        message: "Admin token cannot access user routes"
+        message: "Only users can access this route",
       });
     }
 
+    // ✅ SINGLE SOURCE OF TRUTH
     req.userId = decoded.userId;
+
     next();
   } catch (err) {
     return res.status(401).json({
       success: false,
-      message: "Invalid user token"
+      message: "Invalid user token",
     });
   }
 };

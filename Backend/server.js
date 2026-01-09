@@ -40,6 +40,8 @@ app.use(cors({
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+
+
 //api endpoints
 app.use('/api/payment', router)
 app.use('/api/user',userouter)
@@ -52,6 +54,7 @@ app.use('/api/promo', promorouter)
 app.use("/api/collaborator", collaboratorRoutes);
 app.use("/api/admin/collaborator", adminCollaborator);
 app.use("/api/testimonials", testimonialRoutes);
+
 //api endpoint
 app.get('/',(req,res)=>{
     res.send('api working')    
