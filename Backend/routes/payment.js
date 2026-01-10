@@ -31,7 +31,7 @@ router.post("/initiate", async (req, res) => {
 
     const metaInfo = MetaInfo.builder().udf1("udf1").udf2("udf2").build()
 
-    const request = CreateSdkOrderRequest.StandardCheckoutBuilder().merchantOrderId(merchantOrderId).amount(amount * 100).redirectUrl(`${redirectUrl}/?id=${merchantOrderId}/orderId${orderId}`).metaInfo(metaInfo).build()
+    const request = CreateSdkOrderRequest.StandardCheckoutBuilder().merchantOrderId(merchantOrderId).amount(amount * 100).redirectUrl(`${redirectUrl}/?orderId=${merchantOrderId}&dbId=${orderId}`).metaInfo(metaInfo).build()
 
     client.pay(request).then((response) => {
       const checkoutPageUrl = response.redirectUrl
@@ -53,6 +53,8 @@ router.post("/initiate", async (req, res) => {
 
 router.get("/checkPaymentStatus", async (req, res) => {
   try {
+    const { orderId, dbId } = req.query;
+
     const clientId = process.env.PHONEPE_CLIENT_ID
     const clientSecret = process.env.PHONEPE_CLIENT_SECRET
     const clientVersion = 1
@@ -65,25 +67,18 @@ router.get("/checkPaymentStatus", async (req, res) => {
       env
     )
 
-    const info = req.query.id.split("/orderId")
+    const response = await client.getOrderStatus(orderId);
+    const state = response?.data?.state;
 
-    const response = await client.getOrderStatus(info[0])
-
-    if (response.state === "COMPLETED") {
-      await ordermodel.findByIdAndUpdate(info[1], { payment: true })
-      return res.redirect(
-        "https://www.trendoor.in/ordersuccess"
-      );
-    } else {
-      return res.redirect(
-        "https://www.trendoor.in/orderfailed"
-      );
+    if (state === "COMPLETED") {
+      await ordermodel.findByIdAndUpdate(dbId, { payment: true });
+      return res.redirect("https://www.trendoor.in/ordersuccess");
     }
-  } catch (error) {
-    return res.json({
-      success: false,
-      message: "Payment not verified yet."
-    })
+
+    return res.redirect("https://www.trendoor.in/orderfailed");
+
+  } catch (err) {
+    return res.redirect("https://www.trendoor.in/orderfailed");
   }
 })
 
