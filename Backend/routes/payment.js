@@ -71,11 +71,7 @@ router.get("/checkPaymentStatus", async (req, res) => {
     const state = response?.state;
 
     if (state === "COMPLETED") {
-      const updated = await ordermodel.findByIdAndUpdate(
-        dbId,
-        { $set: { payment: true } },
-        { new: true }
-      );
+      const updated = await ordermodel.findById(dbId)
       return res.json({
         success: "true 1",
         updatedOrder: updated
