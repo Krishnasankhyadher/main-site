@@ -83,18 +83,18 @@ router.get("/checkPaymentStatus", async (req, res) => {
       // return res.redirect("https://www.trendoor.in/ordersuccess");
     }
 
-    return res.redirect("https://www.trendoor.in/orderfailed");
-    // return res.json({
-    //   success: true,
-    //   response,
-    // })
+    // return res.redirect("https://www.trendoor.in/orderfailed");
+    return res.json({
+      success: true,
+      response,
+    })
 
   } catch (err) {
-    return res.redirect("https://www.trendoor.in/orderfailed");
-    // return res.json({
-    //   success: false,
-    //   message: err
-    // })
+    // return res.redirect("https://www.trendoor.in/orderfailed");
+    return res.json({
+      success: false,
+      message: err
+    })
   }
 })
 
