@@ -1,4 +1,4 @@
-import express from "express";
+import express, { response } from "express";
 import { getPhonePeToken } from "../utils/phonepayToken.js";
 import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto"
@@ -68,13 +68,14 @@ router.get("/checkPaymentStatus", async (req, res) => {
     )
 
     const response = await client.getOrderStatus(orderId);
-    const state = response?.state;
+    const state = response?.response?.data?.state;
 
     if (state === "COMPLETED") {
       const updated = await ordermodel.findById(dbId)
       return res.json({
         success: "true 1",
-        updatedOrder: updated
+        updatedOrder: updated,
+        response
       })
       // return res.redirect("https://www.trendoor.in/ordersuccess");
     }
