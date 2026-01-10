@@ -100,7 +100,7 @@ const placeorder = async (req, res) => {
     // 5️⃣ Clear cart
     await usermodel.findByIdAndUpdate(userid, { cartdata: {} });
 
-    res.json({
+    return res.json({
       success: true,
       message: "Order placed successfully",
       orderId: neworder._id,
