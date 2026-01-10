@@ -68,25 +68,25 @@ router.get("/checkPaymentStatus", async (req, res) => {
     )
 
     const response = await client.getOrderStatus(orderId);
-    const state = response?.data?.state;
+    const state = response?.state;
 
-    // if (state === "COMPLETED") {
-    //   // await ordermodel.findByIdAndUpdate(dbId, { payment: true });
-    //   return res.redirect("https://www.trendoor.in/ordersuccess");
-    // }
+    if (state === "COMPLETED") {
+      // await ordermodel.findByIdAndUpdate(dbId, { payment: true });
+      return res.redirect("https://www.trendoor.in/ordersuccess");
+    }
 
-    // return res.redirect("https://www.trendoor.in/orderfailed");
-    return res.json({
-      success: true,
-      response,
-    })
+    return res.redirect("https://www.trendoor.in/orderfailed");
+    // return res.json({
+    //   success: true,
+    //   response,
+    // })
 
   } catch (err) {
-    // return res.redirect("https://www.trendoor.in/orderfailed");
-    return res.json({
-      success: false,
-      message: err
-    })
+    return res.redirect("https://www.trendoor.in/orderfailed");
+    // return res.json({
+    //   success: false,
+    //   message: err
+    // })
   }
 })
 
