@@ -71,8 +71,16 @@ router.get("/checkPaymentStatus", async (req, res) => {
     const state = response?.state;
 
     if (state === "COMPLETED") {
-      await ordermodel.findByIdAndUpdate(dbId, { payment: true });
-      return res.redirect("https://www.trendoor.in/ordersuccess");
+      const updated = await ordermodel.findByIdAndUpdate(
+        dbId,
+        { $set: { payment: true } },
+        { new: true }
+      );
+      return res.json({
+        success: true,
+        updatedOrder: updated
+      })
+      // return res.redirect("https://www.trendoor.in/ordersuccess");
     }
 
     return res.redirect("https://www.trendoor.in/orderfailed");
