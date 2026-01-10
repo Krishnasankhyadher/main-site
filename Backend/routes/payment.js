@@ -31,7 +31,7 @@ router.post("/initiate", async (req, res) => {
 
     const metaInfo = MetaInfo.builder().udf1("udf1").udf2("udf2").build()
 
-    const request = CreateSdkOrderRequest.StandardCheckoutBuilder().merchantOrderId(merchantOrderId).amount(amount*100).redirectUrl(`${redirectUrl}/?id=${merchantOrderId}/orderId${orderId}`).metaInfo(metaInfo).build()
+    const request = CreateSdkOrderRequest.StandardCheckoutBuilder().merchantOrderId(merchantOrderId).amount(amount * 100).redirectUrl(`${redirectUrl}/?id=${merchantOrderId}/orderId${orderId}`).metaInfo(metaInfo).build()
 
     client.pay(request).then((response) => {
       const checkoutPageUrl = response.redirectUrl
@@ -57,19 +57,20 @@ router.get("/checkPaymentStatus", async (req, res) => {
     const clientSecret = process.env.PHONEPE_CLIENT_SECRET
     const clientVersion = 1
     const env = Env.PRODUCTION
-  
+
     const client = StandardCheckoutClient.getInstance(
       clientId,
       clientSecret,
       clientVersion,
       env
     )
-  
+
     const info = req.query.id.split("/orderId")
-  
+
     const response = await client.getOrderStatus(info[0])
-  
+
     if (response.state === "COMPLETED") {
+      await ordermodel.findByIdAndUpdate(info[1], { payment: true })
       return res.redirect(
         "https://www.trendoor.in/ordersuccess"
       );

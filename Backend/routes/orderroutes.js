@@ -14,7 +14,7 @@ import adminauth from "../middleware/adminauth.js";
 const orderrouter = express.Router();
 
 /* ADMIN */
-orderrouter.post("/list", adminauth, allorders);
+orderrouter.get("/list", adminauth, allorders);
 orderrouter.post("/status", adminauth, updatestatus);
 orderrouter.post("/delete", adminauth, deleteorder);
 

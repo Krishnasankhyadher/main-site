@@ -6,7 +6,7 @@ import promomodel from "../models/promomodel.js";
 /* ================= PLACE ORDER ================= */
 const placeorder = async (req, res) => {
   try {
-    const { items, amount, address, promoCode } = req.body;
+    const { items, amount, address, promoCode, paymentmethod } = req.body;
     const userid = req.userId;
 
     // 1️⃣ Validate stock
@@ -91,7 +91,7 @@ const placeorder = async (req, res) => {
       originalAmount: amount,
       discountAmount,
       promoCode: promoCode || null,
-      paymentmethod: "cod",
+      paymentmethod: paymentmethod,
       payment: false,
       date: Date.now(),
       status: "Order placed",
