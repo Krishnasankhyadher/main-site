@@ -82,33 +82,39 @@ router.get("/checkPaymentStatus", async (req, res) => {
 
     const response = await client.getOrderStatus(order.merchantOrderId);
 
-    // ✅ CORRECT SUCCESS CHECK
-    if (response.state === "SUCCESS") {
+    console.log(
+      "🔍 PhonePe order status response:",
+      JSON.stringify(response, null, 2)
+    );
 
+    const isSuccess =
+      response?.state === "SUCCESS" ||
+      response?.status === "SUCCESS" ||
+      response?.code === "PAYMENT_SUCCESS" ||
+      response?.paymentDetails?.status === "SUCCESS";
+
+    if (isSuccess) {
       order.paymentStatus = "paid";
       order.status = "Order placed";
-
-      // ✅ CORRECT transactionId extraction
       order.transactionId =
         response?.paymentDetails?.transactionId ||
-        response?.data?.transactionId ||
-        null;
+        response?.paymentDetails?.paymentTransactionId ||
+        response?.transactionId ||
+        order.merchantOrderId;
 
       await order.save();
 
-      // ✅ UPDATE STOCK
+      // Update stock
       for (const item of order.items) {
         const product = await productmodel.findById(item._id);
         if (!product) continue;
 
-        product.sizes = product.sizes.filter(
-          (s) => s !== item.size
-        );
+        product.sizes = product.sizes.filter(s => s !== item.size);
         product.outofstock = product.sizes.length === 0;
         await product.save();
       }
 
-      // ✅ CLEAR CART
+      // Clear cart
       await usermodel.findByIdAndUpdate(order.userid, {
         cartdata: {}
       });
@@ -116,7 +122,7 @@ router.get("/checkPaymentStatus", async (req, res) => {
       return res.redirect("https://www.trendoor.in/ordersuccess");
     }
 
-    // ❌ Payment failed / pending
+    // Payment failed / pending
     order.paymentStatus = "failed";
     order.status = "Payment failed";
     await order.save();
@@ -124,7 +130,7 @@ router.get("/checkPaymentStatus", async (req, res) => {
     return res.redirect("https://www.trendoor.in/orderfailed");
 
   } catch (err) {
-    console.error("Payment verification error:", err);
+    console.error("❌ Payment verification error:", err);
     return res.redirect("https://www.trendoor.in/orderfailed");
   }
 });
