@@ -74,6 +74,7 @@ const orderschema = new mongoose.Schema({
       "Payment pending",
       "Order placed",
       "Packed",
+      "Payment failed",  
       "Shipped",
       "Delivered",
       "Cancelled"

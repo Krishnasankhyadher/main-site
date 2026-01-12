@@ -87,7 +87,7 @@ router.get("/checkPaymentStatus", async (req, res) => {
     const state = response?.state || response?.status;
 
     // ✅ SUCCESS
-    if (state === "SUCCESS") {
+    if (state === "COMPLETED") {
       order.paymentStatus = "paid";
       order.status = "Order placed";
 
