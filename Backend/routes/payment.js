@@ -19,7 +19,7 @@ router.post("/initiate", async (req, res) => {
   try {
     const { amount, orderId, mobileNumber } = req.body;
     const merchantOrderId = orderId;
-    const redirectUrl = "https://trendoor-backend.onrender.com/api/payment/checkPaymentStatus"
+    const redirectUrl = "https://main-site-production-a061.up.railway.app/api/payment/checkPaymentStatus"
     const clientId = process.env.PHONEPE_CLIENT_ID
     const clientSecret = process.env.PHONEPE_CLIENT_SECRET
     const clientVersion = 1
