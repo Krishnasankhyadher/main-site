@@ -75,22 +75,28 @@ router.get("/checkPaymentStatus", async (req, res) => {
       Env.PRODUCTION
     );
 
-    const response = await client.getOrderStatus(orderId);
-
     const order = await ordermodel.findById(orderId);
     if (!order) {
       return res.redirect("https://www.trendoor.in/orderfailed");
     }
 
-    if (response.state === "COMPLETED") {
+    const response = await client.getOrderStatus(order.merchantOrderId);
 
-      // ✅ MARK PAYMENT SUCCESS
+    // ✅ CORRECT SUCCESS CHECK
+    if (response.state === "SUCCESS") {
+
       order.paymentStatus = "paid";
       order.status = "Order placed";
-      order.transactionId = response.transactionId || null;
+
+      // ✅ CORRECT transactionId extraction
+      order.transactionId =
+        response?.paymentDetails?.transactionId ||
+        response?.data?.transactionId ||
+        null;
+
       await order.save();
 
-      // ✅ UPDATE STOCK NOW
+      // ✅ UPDATE STOCK
       for (const item of order.items) {
         const product = await productmodel.findById(item._id);
         if (!product) continue;
@@ -110,7 +116,7 @@ router.get("/checkPaymentStatus", async (req, res) => {
       return res.redirect("https://www.trendoor.in/ordersuccess");
     }
 
-    // ❌ PAYMENT FAILED
+    // ❌ Payment failed / pending
     order.paymentStatus = "failed";
     order.status = "Payment failed";
     await order.save();
@@ -118,7 +124,7 @@ router.get("/checkPaymentStatus", async (req, res) => {
     return res.redirect("https://www.trendoor.in/orderfailed");
 
   } catch (err) {
-    console.error(err);
+    console.error("Payment verification error:", err);
     return res.redirect("https://www.trendoor.in/orderfailed");
   }
 });
