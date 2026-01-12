@@ -31,7 +31,11 @@ connectcloudinary()
 
 
 //middleware
-app.use(express.json())
+app.use(express.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
 const allowedOrigins = ['https://www.trendoor.in', 'http://localhost:5174', 'http://localhost:5175']; // Add your localhost URL
 app.use(cors({
   origin: allowedOrigins,

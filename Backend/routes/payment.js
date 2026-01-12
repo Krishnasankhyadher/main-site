@@ -82,29 +82,23 @@ router.get("/checkPaymentStatus", async (req, res) => {
 
     const response = await client.getOrderStatus(order.merchantOrderId);
 
-    console.log(
-      "🔍 PhonePe order status response:",
-      JSON.stringify(response, null, 2)
-    );
+    console.log("🔥 FULL PHONEPE RESPONSE:", JSON.stringify(response, null, 2));
 
-    const isSuccess =
-      response?.state === "SUCCESS" ||
-      response?.status === "SUCCESS" ||
-      response?.code === "PAYMENT_SUCCESS" ||
-      response?.paymentDetails?.status === "SUCCESS";
+    const state = response?.state || response?.status;
 
-    if (isSuccess) {
+    // ✅ SUCCESS
+    if (state === "SUCCESS") {
       order.paymentStatus = "paid";
       order.status = "Order placed";
+
       order.transactionId =
-        response?.paymentDetails?.transactionId ||
-        response?.paymentDetails?.paymentTransactionId ||
         response?.transactionId ||
+        response?.paymentInstrument?.transactionId ||
         order.merchantOrderId;
 
       await order.save();
 
-      // Update stock
+      // reduce stock
       for (const item of order.items) {
         const product = await productmodel.findById(item._id);
         if (!product) continue;
@@ -114,15 +108,18 @@ router.get("/checkPaymentStatus", async (req, res) => {
         await product.save();
       }
 
-      // Clear cart
-      await usermodel.findByIdAndUpdate(order.userid, {
-        cartdata: {}
-      });
+      // clear cart
+      await usermodel.findByIdAndUpdate(order.userid, { cartdata: {} });
 
       return res.redirect("https://www.trendoor.in/ordersuccess");
     }
 
-    // Payment failed / pending
+    // ⏳ PENDING (IMPORTANT)
+    if (state === "PENDING" || state === "INITIATED") {
+      return res.redirect("https://www.trendoor.in/payment-pending");
+    }
+
+    // ❌ FAILED
     order.paymentStatus = "failed";
     order.status = "Payment failed";
     await order.save();
