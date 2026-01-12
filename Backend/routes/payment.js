@@ -3,6 +3,7 @@ import { getPhonePeToken } from "../utils/phonepayToken.js";
 import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto"
 import axios from "axios";
+import ordermodel from "../models/ordermodel.js";
 import {
   StandardCheckoutClient,
   Env,
@@ -15,7 +16,7 @@ const router = express.Router();
 router.post("/initiate", async (req, res) => {
   try {
     const { amount, orderId, mobileNumber } = req.body;
-    const merchantOrderId = uuidv4();
+    const merchantOrderId = orderId;
     const redirectUrl = "https://trendoor-backend.onrender.com/api/payment/checkPaymentStatus"
     const clientId = process.env.PHONEPE_CLIENT_ID
     const clientSecret = process.env.PHONEPE_CLIENT_SECRET
@@ -31,60 +32,96 @@ router.post("/initiate", async (req, res) => {
 
     const metaInfo = MetaInfo.builder().udf1("udf1").udf2("udf2").build()
 
-    const request = CreateSdkOrderRequest.StandardCheckoutBuilder().merchantOrderId(merchantOrderId).amount(amount * 100).redirectUrl(`${redirectUrl}/?orderId=${merchantOrderId}&dbId=${orderId}`).metaInfo(metaInfo).build()
+    const request =
+  CreateSdkOrderRequest.StandardCheckoutBuilder()
+    .merchantOrderId(merchantOrderId)
+    .amount(amount * 100)
+    .redirectUrl(
+      `${redirectUrl}?orderId=${orderId}`
+    )
+    .metaInfo(metaInfo)
+    .build();
 
-    client.pay(request).then((response) => {
-      const checkoutPageUrl = response.redirectUrl
-      return res.json({
-        success: true,
-        message: "Payment order created successfully.",
-        checkoutPageUrl,
-        merchantOrderId
-      })
-    })
+     // 🔥 CREATE PAYMENT ORDER
+    const response = await client.pay(request);
 
-    return
+    // ✅ SAVE merchantOrderId IN DB
+    await ordermodel.findByIdAndUpdate(orderId, {
+      merchantOrderId: merchantOrderId
+    });
+
+    return res.json({
+      success: true,
+      checkoutPageUrl: response.redirectUrl
+    });
 
   } catch (err) {
-    console.error("❌ PhonePe Checkout Fatal Error:", err || err);
-    return res.status(500).json({ success: false, error: err.response?.data || err.message });
+    console.error("❌ PhonePe initiate error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Payment initiation failed"
+    });
   }
 });
 
 router.get("/checkPaymentStatus", async (req, res) => {
   try {
-    const { orderId, dbId } = req.query;
-
-    const clientId = process.env.PHONEPE_CLIENT_ID
-    const clientSecret = process.env.PHONEPE_CLIENT_SECRET
-    const clientVersion = 1
-    const env = Env.PRODUCTION
+    const { orderId } = req.query;
 
     const client = StandardCheckoutClient.getInstance(
-      clientId,
-      clientSecret,
-      clientVersion,
-      env
-    )
+      process.env.PHONEPE_CLIENT_ID,
+      process.env.PHONEPE_CLIENT_SECRET,
+      1,
+      Env.PRODUCTION
+    );
 
     const response = await client.getOrderStatus(orderId);
-    const state = response.state;
 
-    if (state === "COMPLETED") {
-      // await ordermodel.findByIdAndUpdate(dbId, { payment: true });
+    const order = await ordermodel.findById(orderId);
+    if (!order) {
+      return res.redirect("https://www.trendoor.in/orderfailed");
+    }
+
+    if (response.state === "COMPLETED") {
+
+      // ✅ MARK PAYMENT SUCCESS
+      order.paymentStatus = "paid";
+      order.status = "Order placed";
+      order.transactionId = response.transactionId || null;
+      await order.save();
+
+      // ✅ UPDATE STOCK NOW
+      for (const item of order.items) {
+        const product = await productmodel.findById(item._id);
+        if (!product) continue;
+
+        product.sizes = product.sizes.filter(
+          (s) => s !== item.size
+        );
+        product.outofstock = product.sizes.length === 0;
+        await product.save();
+      }
+
+      // ✅ CLEAR CART
+      await usermodel.findByIdAndUpdate(order.userid, {
+        cartdata: {}
+      });
+
       return res.redirect("https://www.trendoor.in/ordersuccess");
     }
+
+    // ❌ PAYMENT FAILED
+    order.paymentStatus = "failed";
+    order.status = "Payment failed";
+    await order.save();
 
     return res.redirect("https://www.trendoor.in/orderfailed");
 
   } catch (err) {
-    // return res.redirect("https://www.trendoor.in/orderfailed");
-    return res.json({
-      success: false,
-      message: err
-    })
+    console.error(err);
+    return res.redirect("https://www.trendoor.in/orderfailed");
   }
-})
+});
 
 
 export default router;

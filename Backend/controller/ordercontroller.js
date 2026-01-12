@@ -6,7 +6,7 @@ import promomodel from "../models/promomodel.js";
 /* ================= PLACE ORDER ================= */
 const placeorder = async (req, res) => {
   try {
-    const { items, amount, address, promoCode, paymentmethod } = req.body;
+    const { items, amount, address, promoCode } = req.body;
     const userid = req.userId;
 
     // 1️⃣ Validate stock
@@ -75,32 +75,35 @@ const placeorder = async (req, res) => {
     }
 
     // 3️⃣ Update product stock
-    for (const item of items) {
-      const product = await productmodel.findById(item._id);
-      product.sizes = product.sizes.filter((s) => s !== item.size);
-      product.outofstock = product.sizes.length === 0;
-      await product.save();
-    }
+    
 
     // 4️⃣ Save order
     const neworder = await ordermodel.create({
-      userid,
-      items,
-      address,
-      amount: finalAmount,
-      originalAmount: amount,
-      discountAmount,
-      promoCode: promoCode || null,
-      paymentmethod: paymentmethod,
-      payment: false,
-      date: Date.now(),
-      status: "Order placed",
-    });
+  userid,
+  items,
+  address,
+  amount: finalAmount,
+  originalAmount: amount,
+  discountAmount,
+  promoCode: promoCode || null,
+
+  paymentMethod: req.body.paymentmethod === "cod" ? "cod" : "phonepe",
+  paymentStatus: req.body.paymentmethod === "cod" ? "paid" : "pending",
+
+  status:
+    req.body.paymentmethod === "cod"
+      ? "Order placed"
+      : "Payment pending",
+
+  merchantOrderId: null,
+  date: Date.now(),
+});
+
 
     // 5️⃣ Clear cart
-    await usermodel.findByIdAndUpdate(userid, { cartdata: {} });
+    
 
-    return res.json({
+    res.json({
       success: true,
       message: "Order placed successfully",
       orderId: neworder._id,
