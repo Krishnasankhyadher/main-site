@@ -6,10 +6,10 @@ import promomodel from "../models/promomodel.js";
 /* ================= PLACE ORDER ================= */
 const placeorder = async (req, res) => {
   try {
-    const { items, amount, address, promoCode } = req.body;
+    const { items, amount, address, promoCode, paymentmethod } = req.body;
     const userid = req.userId;
 
-    // 1️⃣ Validate stock
+    /* 1️⃣ Validate stock */
     for (const item of items) {
       const product = await productmodel.findById(item._id);
       if (!product) {
@@ -31,7 +31,7 @@ const placeorder = async (req, res) => {
       }
     }
 
-    // 2️⃣ Promo validation
+    /* 2️⃣ Promo validation */
     let discountAmount = 0;
     let finalAmount = amount;
 
@@ -70,50 +70,66 @@ const placeorder = async (req, res) => {
       discountAmount = promo.discountAmount;
       finalAmount = Math.max(0, amount - discountAmount);
 
+      // ⚠️ keep as-is (you said no other changes)
       promo.currentUses += 1;
       await promo.save();
     }
 
-    // 3️⃣ Update product stock
-    
-
-    // 4️⃣ Save order
+    /* 3️⃣ SAVE ORDER FIRST */
     const neworder = await ordermodel.create({
-  userid,
-  items,
-  address,
-  amount: finalAmount,
-  originalAmount: amount,
-  discountAmount,
-  promoCode: promoCode || null,
+      userid,
+      items,
+      address,
 
-  paymentMethod: req.body.paymentmethod === "cod" ? "cod" : "phonepe",
-  paymentStatus: req.body.paymentmethod === "cod" ? "paid" : "pending",
+      amount: finalAmount,
+      originalAmount: amount,
+      discountAmount,
+      promoCode: promoCode || null,
 
-  status:
-    req.body.paymentmethod === "cod"
-      ? "Order placed"
-      : "Payment pending",
+      paymentMethod: paymentmethod === "cod" ? "cod" : "phonepe",
+      paymentStatus: paymentmethod === "cod" ? "paid" : "pending",
 
-  merchantOrderId: null,
-  date: Date.now(),
-});
+      status:
+        paymentmethod === "cod"
+          ? "Order placed"
+          : "Payment pending",
 
+      merchantOrderId: null,
+      date: Date.now(),
+    });
 
-    // 5️⃣ Clear cart
-    
+    /* 4️⃣ REDUCE STOCK — ONLY FOR COD */
+    if (paymentmethod === "cod") {
+      for (const item of items) {
+        const product = await productmodel.findById(item._id);
+        if (!product) continue;
 
-    res.json({
+        product.sizes = product.sizes.filter(
+          (size) => size !== item.size
+        );
+
+        product.outofstock = product.sizes.length === 0;
+        await product.save();
+      }
+
+      await usermodel.findByIdAndUpdate(userid, {
+        cartdata: {},
+      });
+    }
+
+    return res.json({
       success: true,
       message: "Order placed successfully",
       orderId: neworder._id,
-      finalAmount: neworder.amount
+      finalAmount: neworder.amount,
     });
+
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
   }
 };
+
 
 /* ================= RAZORPAY (EMPTY) ================= */
 const placeorderrazorpay = async (req, res) => {};
