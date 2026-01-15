@@ -151,7 +151,8 @@ const validatePromoCode = async (req, res) => {
     res.json({ 
       success: true, 
       discount: promo.discountAmount,
-      promoCode: promo.code
+      promoCode: promo.code,
+       minOrderAmount: promo.minOrderAmount  
     });
 
   } catch (error) {
