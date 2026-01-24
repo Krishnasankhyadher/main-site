@@ -8,8 +8,7 @@ const createtoken = (user) => {
       userId: user._id,
       role: "user"
     },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" });
+    process.env.JWT_SECRET);
 };
 
 const loginuser = async (req, res) => {

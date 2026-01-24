@@ -142,7 +142,7 @@ const validatePromoCode = async (req, res) => {
     const userOrders = await ordermodel.find({ 
       userid: userId,
       promoCode: upperCode 
-    });
+    }); 
 
     if (userOrders.length > 0) {
       return res.json({ success: false, message: "You've already used this promo code" });
